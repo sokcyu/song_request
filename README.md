@@ -30,3 +30,10 @@ Firestore Database → 규칙 탭에서 `firestore.rules`의 내용을 붙여넣
 - 이용자: https://sokcyu.github.io/song_request/
 - 게스트: https://sokcyu.github.io/song_request/guest.html
 - 관리자: https://sokcyu.github.io/song_request/admin.html
+
+
+## 관리자 회원가입 기능
+- `admin.html`에서 관리자 이메일과 비밀번호로 가입 신청할 수 있습니다.
+- 새 관리자 문서는 `role: admin-request`, `status: pending`으로 생성됩니다.
+- 기존 관리자가 관리자 대시보드에서 `관리자 승인`을 눌러야 로그인할 수 있습니다.
+- 첫 번째 관리자는 Firestore에서 직접 `role: admin`, `status: approved`로 설정해야 합니다.
