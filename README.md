@@ -1,27 +1,32 @@
-# CJ스튜디오 비로그인 관리자 프로그램
+# cj스튜디오 Firebase 실시간 신청곡 시스템
 
-## 변경 사항
-- 이메일 로그인 삭제
-- Google 로그인 삭제
-- 비밀번호 찾기 삭제
-- 관리자 프로필 검사 삭제
-- 관리자 페이지 접속 즉시 대시보드 표시
+## 포함 파일
+- index.html: 이용자 회원가입/로그인/신청
+- guest.html: 게스트 페이지
+- admin.html: 관리자 페이지
+- firebase-config.js: Firebase 연결 설정
+- user-app.js / admin-app.js: Firebase 연동 코드
+- firestore.rules: Firestore 보안 규칙
 
-## 중요한 보안 경고
-이 버전은 로그인 없이 관리자 기능을 사용합니다.
-관리자 주소를 아는 누구나 다음 작업을 할 수 있습니다.
+## Firebase Console 필수 설정
 
-- 이용자 승인/정지/삭제
-- 신청곡 승인/거절/삭제
-- 예약시간 변경
+### 1. Authentication
+Authentication → Sign-in method → 이메일/비밀번호를 사용 설정합니다.
 
-Firestore 규칙도 공개 쓰기로 변경해야 동작합니다.
-공개 운영에는 권장하지 않습니다.
+### 2. Firestore 규칙
+Firestore Database → 규칙 탭에서 `firestore.rules`의 내용을 붙여넣고 게시합니다.
 
-## 적용 방법
-1. ZIP 안의 파일을 GitHub 저장소 루트에 업로드합니다.
-2. Firestore Database → 규칙에서 `firestore.rules` 내용을 붙여넣고 게시합니다.
-3. GitHub Pages 배포 후 관리자 페이지를 엽니다.
+### 3. 첫 관리자 만들기
+1. 일반 이용자 페이지에서 관리자용 이메일로 회원가입합니다.
+2. Firestore → users 컬렉션 → 해당 사용자 문서를 엽니다.
+3. `role` 값을 `user`에서 `admin`으로 변경합니다.
+4. `status` 값을 `pending`에서 `approved`로 변경합니다.
+5. 그 계정으로 admin.html에 로그인합니다.
 
-관리자 주소:
-https://sokcyu.github.io/song_request/admin.html
+## GitHub 업로드
+모든 파일을 저장소 루트에 업로드하고 Commit changes를 누릅니다.
+
+## 주소
+- 이용자: https://sokcyu.github.io/song_request/
+- 게스트: https://sokcyu.github.io/song_request/guest.html
+- 관리자: https://sokcyu.github.io/song_request/admin.html

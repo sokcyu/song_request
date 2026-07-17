@@ -1,205 +1,57 @@
 import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-  collection, onSnapshot, serverTimestamp, Timestamp
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc, collection, onSnapshot, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const $ = s => document.querySelector(s);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),$=s=>document.querySelector(s);
+const esc=(v="")=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const fmt=v=>new Intl.DateTimeFormat("ko-KR",{dateStyle:"short",timeStyle:"short"}).format(v?.toDate?v.toDate():new Date(v));
+const local=v=>{const d=new Date(v),z=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`};
+const error=e=>alert(e?.message||String(e));
+let unsubUsers=null,unsubRequests=null,unsubSchedule=null;
 
-let usersCache = [];
-let requestsCache = [];
+$("#loginBtn").onclick=()=>signInWithEmailAndPassword(auth,$("#email").value.trim(),$("#pw").value).catch(error);
+$("#logoutBtn").onclick=()=>signOut(auth);
 
-const esc = (v="") => String(v).replace(/[&<>"']/g, c => ({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-}[c]));
-
-const fmt = value => {
-  const date = value?.toDate ? value.toDate() : new Date(value);
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle:"short", timeStyle:"short"
-  }).format(date);
+window.setUserStatus=async(id,status)=>{try{await updateDoc(doc(db,"users",id),{status})}catch(e){error(e)}};
+window.deleteUser=async id=>{if(confirm("계정을 삭제할까요? Firebase Authentication 계정은 콘솔에서 별도 삭제해야 합니다."))try{await deleteDoc(doc(db,"users",id))}catch(e){error(e)}};
+window.updateRequest=async(id,status)=>{
+ try{
+  const ref=doc(db,"requests",id),s=await getDoc(ref);
+  if(!s.exists()||s.data().status!=="pending"){alert("이미 처리된 신청입니다.");return}
+  const notice=status==="approved"?"승인되었습니다. 음원 발매 이후 공고문을 발송하겠습니다.":"거절되었습니다. 다른 음원을 말씀해 주세요.";
+  await updateDoc(ref,{status,notice,updatedAt:serverTimestamp()});
+ }catch(e){error(e)}
 };
+window.deleteRequest=async id=>{if(confirm("삭제 처리할까요?"))try{await updateDoc(doc(db,"requests",id),{status:"deleted",notice:"음원이 부적절함으로 처리되어 삭제되었습니다. 다시 이용해 주시길 바랍니다.",updatedAt:serverTimestamp()})}catch(e){error(e)}};
+window.youtube=(song,artist)=>window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(artist+" "+song),"_blank");
 
-const toInputValue = date => {
-  const z = n => String(n).padStart(2,"0");
-  return `${date.getFullYear()}-${z(date.getMonth()+1)}-${z(date.getDate())}T${z(date.getHours())}:${z(date.getMinutes())}`;
+$("#saveTime").onclick=async()=>{
+ const s=$("#start").value,e=$("#end").value;if(!s||!e||new Date(e)<=new Date(s)){alert("올바른 시간을 입력하세요.");return}
+ try{await setDoc(doc(db,"settings","schedule"),{start:Timestamp.fromDate(new Date(s)),end:Timestamp.fromDate(new Date(e)),updatedAt:serverTimestamp()})}catch(x){error(x)}
 };
+$("#openNow").onclick=async()=>{const n=new Date(),e=new Date(n.getTime()+3600000);$("#start").value=local(n);$("#end").value=local(e);$("#saveTime").click()};
+$("#closeNow").onclick=async()=>{const n=new Date(),s=new Date(n.getTime()-60000);$("#start").value=local(s);$("#end").value=local(n);$("#saveTime").click()};
 
-function showError(error) {
-  console.error(error);
-  alert(error?.message || String(error));
-}
-
-function renderUsers() {
-  const q = $("#userSearch").value.trim().toLowerCase();
-  const data = usersCache.filter(u =>
-    !q || [u.name, u.email, u.role, u.status].join(" ").toLowerCase().includes(q)
-  );
-
-  $("#userList").innerHTML = data.length ? data.map(u => `
-    <div class="item">
-      <div class="title">${esc(u.name || "이름 없음")}</div>
-      <div class="muted">${esc(u.email || "")}<br>권한: ${esc(u.role || "user")}</div>
-      <span class="badge">${esc(u.status || "pending")}</span>
-      <div class="actions">
-        <button class="ok" onclick="approveUser('${u.id}')">✅ 승인</button>
-        <button class="no" onclick="suspendUser('${u.id}')">⛔ 정지</button>
-        <button class="delete" onclick="removeProfile('${u.id}')">🗑 프로필 삭제</button>
-      </div>
-    </div>
-  `).join("") : '<div class="empty">이용자가 없습니다.</div>';
-}
-
-function renderRequests() {
-  const q = $("#requestSearch").value.trim().toLowerCase();
-  const filter = $("#requestFilter").value;
-
-  const data = requestsCache.filter(r => {
-    const matchText = !q || [r.song,r.artist,r.name,r.userEmail,r.type]
-      .join(" ").toLowerCase().includes(q);
-    const matchStatus = filter === "all" || r.status === filter;
-    return matchText && matchStatus;
+onAuthStateChanged(auth,async user=>{
+ if(unsubUsers)unsubUsers();if(unsubRequests)unsubRequests();if(unsubSchedule)unsubSchedule();
+ $("#login").classList.remove("hidden");$("#app").classList.add("hidden");
+ if(!user)return;
+ try{
+  const p=await getDoc(doc(db,"users",user.uid));
+  if(!p.exists()||p.data().role!=="admin"){alert("관리자 권한이 없습니다.");await signOut(auth);return}
+  $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
+  unsubUsers=onSnapshot(collection(db,"users"),s=>{
+   const a=s.docs.map(d=>({id:d.id,...d.data()}));
+   $("#users").innerHTML=a.length?a.map(u=>`<div class="item"><div class="song">${esc(u.name||u.email)}</div><div class="muted">${esc(u.email||"")} · ${esc(u.role||"user")}</div><span class="badge">${esc(u.status||"pending")}</span><div class="actions"><button class="ok" onclick="setUserStatus('${u.id}','approved')">✅ 승인</button><button class="no" onclick="setUserStatus('${u.id}','suspended')">⛔ 정지</button><button class="del" onclick="deleteUser('${u.id}')">🗑 프로필 삭제</button></div></div>`).join(""):'<div class="empty">이용자가 없습니다.</div>';
   });
-
-  $("#requestList").innerHTML = data.length ? data.map(r => `
-    <div class="item">
-      <div class="title">${esc(r.song || "제목 없음")}</div>
-      <div class="muted">
-        ${esc(r.artist || "")} · ${esc(r.name || "신청자 없음")}
-        <br>${esc(r.type || "user")} · ${r.createdAt ? fmt(r.createdAt) : ""}
-      </div>
-      <span class="badge">${esc(r.status || "pending")}</span>
-      ${r.notice ? `<div class="notice">📢 ${esc(r.notice)}</div>` : ""}
-      <div class="actions">
-        <button class="ok" onclick="setRequestStatus('${r.id}','approved')" ${r.status !== "pending" ? "disabled" : ""}>✅ 승인</button>
-        <button class="no" onclick="setRequestStatus('${r.id}','rejected')" ${r.status !== "pending" ? "disabled" : ""}>❌ 거절</button>
-        <button class="youtube" onclick="youtube('${esc(r.song)}','${esc(r.artist)}')">▶ 유튜브</button>
-        <button class="delete" onclick="deleteRequest('${r.id}')">🗑 삭제 처리</button>
-      </div>
-    </div>
-  `).join("") : '<div class="empty">신청곡이 없습니다.</div>';
-}
-
-window.approveUser = async id => {
-  try { await updateDoc(doc(db,"users",id), {status:"approved"}); }
-  catch (e) { showError(e); }
-};
-
-window.suspendUser = async id => {
-  try { await updateDoc(doc(db,"users",id), {status:"suspended"}); }
-  catch (e) { showError(e); }
-};
-
-window.removeProfile = async id => {
-  if (!confirm("Firestore 프로필을 삭제할까요?")) return;
-  try { await deleteDoc(doc(db,"users",id)); }
-  catch (e) { showError(e); }
-};
-
-window.setRequestStatus = async (id, status) => {
-  try {
-    const ref = doc(db,"requests",id);
-    const snap = await getDoc(ref);
-    if (!snap.exists() || snap.data().status !== "pending") {
-      alert("이미 처리된 신청입니다.");
-      return;
-    }
-
-    const notice = status === "approved"
-      ? "승인되었습니다. 음원 발매 이후 공고문을 발송하겠습니다."
-      : "거절되었습니다. 다른 음원을 말씀해 주세요.";
-
-    await updateDoc(ref, {
-      status,
-      notice,
-      updatedAt:serverTimestamp()
-    });
-  } catch (e) { showError(e); }
-};
-
-window.deleteRequest = async id => {
-  if (!confirm("삭제 처리할까요?")) return;
-
-  try {
-    await updateDoc(doc(db,"requests",id), {
-      status:"deleted",
-      notice:"음원이 부적절함으로 처리되어 삭제되었습니다. 다시 이용해 주시길 바랍니다.",
-      updatedAt:serverTimestamp()
-    });
-  } catch (e) { showError(e); }
-};
-
-window.youtube = (song, artist) => window.open(
-  "https://www.youtube.com/results?search_query=" + encodeURIComponent(`${artist} ${song}`),
-  "_blank"
-);
-
-$("#saveSchedule").onclick = async () => {
-  const start = $("#startTime").value;
-  const end = $("#endTime").value;
-
-  if (!start || !end || new Date(end) <= new Date(start)) {
-    alert("올바른 시작·종료 시간을 입력하세요.");
-    return;
-  }
-
-  try {
-    await setDoc(doc(db,"settings","schedule"), {
-      start:Timestamp.fromDate(new Date(start)),
-      end:Timestamp.fromDate(new Date(end)),
-      updatedAt:serverTimestamp()
-    });
-
-    alert("예약시간을 저장했습니다.");
-  } catch (e) { showError(e); }
-};
-
-$("#openOneHour").onclick = () => {
-  const start = new Date();
-  const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-  $("#startTime").value = toInputValue(start);
-  $("#endTime").value = toInputValue(end);
-  $("#saveSchedule").click();
-};
-
-$("#closeNow").onclick = () => {
-  const end = new Date();
-  const start = new Date(end.getTime() - 60 * 1000);
-
-  $("#startTime").value = toInputValue(start);
-  $("#endTime").value = toInputValue(end);
-  $("#saveSchedule").click();
-};
-
-$("#userSearch").addEventListener("input", renderUsers);
-$("#requestSearch").addEventListener("input", renderRequests);
-$("#requestFilter").addEventListener("change", renderRequests);
-
-onSnapshot(collection(db,"users"), snap => {
-  usersCache = snap.docs.map(d => ({id:d.id, ...d.data()}));
-  renderUsers();
-}, showError);
-
-onSnapshot(collection(db,"requests"), snap => {
-  requestsCache = snap.docs
-    .map(d => ({id:d.id, ...d.data()}))
-    .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-
-  renderRequests();
-}, showError);
-
-onSnapshot(doc(db,"settings","schedule"), snap => {
-  if (!snap.exists()) {
-    $("#scheduleStatus").textContent = "예약시간이 설정되지 않았습니다.";
-    return;
-  }
-
-  const data = snap.data();
-  $("#startTime").value = toInputValue(data.start.toDate());
-  $("#endTime").value = toInputValue(data.end.toDate());
-  $("#scheduleStatus").textContent = `${fmt(data.start)} ~ ${fmt(data.end)}`;
-}, showError);
+  unsubRequests=onSnapshot(collection(db,"requests"),s=>{
+   const a=s.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(y.createdAt?.seconds||0)-(x.createdAt?.seconds||0));
+   $("#requests").innerHTML=a.length?a.map(x=>`<div class="item"><div class="song">${esc(x.song)}</div><div class="muted">${esc(x.artist)} · ${esc(x.name)} · ${x.createdAt?fmt(x.createdAt):""}</div><span class="badge">${esc(x.status)}</span>${x.notice?`<div class="notice">📢 ${esc(x.notice)}</div>`:""}<div class="actions"><button class="ok" onclick="updateRequest('${x.id}','approved')" ${x.status!=="pending"?"disabled":""}>✅ 승인</button><button class="no" onclick="updateRequest('${x.id}','rejected')" ${x.status!=="pending"?"disabled":""}>❌ 거절</button><button class="yt" onclick="youtube('${esc(x.song)}','${esc(x.artist)}')">▶ 유튜브</button><button class="del" onclick="deleteRequest('${x.id}')">🗑 삭제 처리</button></div></div>`).join(""):'<div class="empty">신청곡이 없습니다.</div>';
+  });
+  unsubSchedule=onSnapshot(doc(db,"settings","schedule"),s=>{
+   if(!s.exists()){$("#scheduleStatus").textContent="예약시간 없음";return}
+   const d=s.data();$("#start").value=local(d.start.toDate());$("#end").value=local(d.end.toDate());$("#scheduleStatus").textContent=`${fmt(d.start)} ~ ${fmt(d.end)}`;
+  });
+ }catch(e){error(e);await signOut(auth)}
+});
