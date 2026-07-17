@@ -1,39 +1,29 @@
-# cj스튜디오 Firebase 실시간 신청곡 시스템
+# CJ스튜디오 새 관리자 프로그램
 
 ## 포함 파일
-- index.html: 이용자 회원가입/로그인/신청
-- guest.html: 게스트 페이지
-- admin.html: 관리자 페이지
-- firebase-config.js: Firebase 연결 설정
-- user-app.js / admin-app.js: Firebase 연동 코드
-- firestore.rules: Firestore 보안 규칙
+- admin.html
+- admin-app.js
+- admin-style.css
+- firebase-config.js
+- firestore.rules
 
-## Firebase Console 필수 설정
+## 관리자 권한 설정
+Firebase Authentication에 계정을 만든 뒤 Firestore의 `users/{uid}` 문서에 아래 필드를 설정하세요.
 
-### 1. Authentication
-Authentication → Sign-in method → 이메일/비밀번호를 사용 설정합니다.
+- name: 관리자 이름
+- email: 관리자 이메일
+- role: admin
+- status: approved
 
-### 2. Firestore 규칙
-Firestore Database → 규칙 탭에서 `firestore.rules`의 내용을 붙여넣고 게시합니다.
+## Firebase Authentication 설정
+- Email/Password 사용 설정
+- Google 사용 설정
+- 승인된 도메인에 `sokcyu.github.io` 추가 확인
 
-### 3. 첫 관리자 만들기
-1. 일반 이용자 페이지에서 관리자용 이메일로 회원가입합니다.
-2. Firestore → users 컬렉션 → 해당 사용자 문서를 엽니다.
-3. `role` 값을 `user`에서 `admin`으로 변경합니다.
-4. `status` 값을 `pending`에서 `approved`로 변경합니다.
-5. 그 계정으로 admin.html에 로그인합니다.
+## Firestore 규칙
+Firestore Database → 규칙 탭에서 `firestore.rules` 내용을 붙여넣고 게시하세요.
 
 ## GitHub 업로드
-모든 파일을 저장소 루트에 업로드하고 Commit changes를 누릅니다.
-
-## 주소
-- 이용자: https://sokcyu.github.io/song_request/
-- 게스트: https://sokcyu.github.io/song_request/guest.html
-- 관리자: https://sokcyu.github.io/song_request/admin.html
-
-
-## 관리자 회원가입 기능
-- `admin.html`에서 관리자 이메일과 비밀번호로 가입 신청할 수 있습니다.
-- 새 관리자 문서는 `role: admin-request`, `status: pending`으로 생성됩니다.
-- 기존 관리자가 관리자 대시보드에서 `관리자 승인`을 눌러야 로그인할 수 있습니다.
-- 첫 번째 관리자는 Firestore에서 직접 `role: admin`, `status: approved`로 설정해야 합니다.
+모든 파일을 저장소 루트에 업로드합니다.
+관리자 주소:
+https://sokcyu.github.io/song_request/admin.html

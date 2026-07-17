@@ -1,29 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
+    function signedIn() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return signedIn() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == "approved";
     }
 
     match /users/{uid} {
+      allow read, update, delete: if isAdmin();
       allow create: if signedIn() && request.auth.uid == uid;
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow update, delete: if isAdmin();
     }
 
-    match /settings/{docId} {
-      allow read: if signedIn();
+    match /settings/{document} {
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    match /requests/{id} {
-      allow create: if signedIn()
-        && request.resource.data.userId == request.auth.uid;
-      allow read: if signedIn()
-        && (resource.data.userId == request.auth.uid || isAdmin());
-      allow update, delete: if isAdmin();
+    match /requests/{requestId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if true;
     }
   }
 }

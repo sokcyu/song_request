@@ -1,37 +1,71 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cj스튜디오 관리자</title><link rel="stylesheet" href="style.css"></head>
-<body><main><h1>🎛️ cj스튜디오 관리자</h1>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CJ스튜디오 관리자</title>
+<link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+<main>
+  <h1>🎛️ CJ스튜디오 관리자</h1>
 
-<section id="authArea">
-  <section class="card">
-    <h2>🔐 관리자 로그인</h2>
+  <section id="loginView" class="card">
+    <h2>관리자 로그인</h2>
     <input id="email" type="email" placeholder="관리자 이메일">
-    <input id="pw" type="password" placeholder="비밀번호">
-    <button id="loginBtn" class="primary">로그인</button>
+    <input id="password" type="password" placeholder="비밀번호">
+    <button id="emailLogin" class="primary">이메일로 로그인</button>
+    <button id="googleLogin" class="google">Google로 로그인</button>
+    <button id="resetPassword" class="secondary">비밀번호 찾기</button>
+    <p class="help">Firestore 사용자 문서가 <b>role: admin</b>, <b>status: approved</b>인 계정만 접속할 수 있습니다.</p>
   </section>
 
-  <section class="card">
-    <h2>📝 관리자 회원가입</h2>
-    <input id="joinName" placeholder="관리자 이름">
-    <input id="joinEmail" type="email" placeholder="관리자 이메일">
-    <input id="joinPw" type="password" placeholder="비밀번호 6자 이상">
-    <button id="joinBtn" class="secondary">관리자 가입 신청</button>
-    <p class="muted">가입 후 기존 관리자의 승인을 받아야 관리자 페이지에 로그인할 수 있습니다.</p>
+  <section id="appView" class="hidden">
+    <section class="card topbar">
+      <div>
+        <strong id="adminName">관리자</strong>
+        <div id="adminEmail" class="muted"></div>
+      </div>
+      <button id="logout" class="secondary small">로그아웃</button>
+    </section>
+
+    <section class="card">
+      <h2>⏰ 신청 접수 시간</h2>
+      <div class="grid2">
+        <label>시작 시간<input id="startTime" type="datetime-local"></label>
+        <label>종료 시간<input id="endTime" type="datetime-local"></label>
+      </div>
+      <button id="saveSchedule" class="primary">예약시간 저장</button>
+      <div class="grid2">
+        <button id="openOneHour" class="ok">지금부터 1시간 접수</button>
+        <button id="closeNow" class="no">즉시 마감</button>
+      </div>
+      <div id="scheduleStatus" class="statusbox">예약시간을 불러오는 중입니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>👥 이용자 관리</h2>
+      <input id="userSearch" placeholder="이름 또는 이메일 검색">
+      <div id="userList"></div>
+    </section>
+
+    <section class="card">
+      <h2>🎵 신청곡 관리</h2>
+      <div class="toolbar">
+        <input id="requestSearch" placeholder="노래·가수·신청자 검색">
+        <select id="requestFilter">
+          <option value="all">전체 상태</option>
+          <option value="pending">대기</option>
+          <option value="approved">승인</option>
+          <option value="rejected">거절</option>
+          <option value="deleted">삭제 처리</option>
+        </select>
+      </div>
+      <div id="requestList"></div>
+    </section>
   </section>
-</section>
+</main>
 
-<section id="pendingArea" class="card hidden">
-  <h2>⏳ 관리자 승인 대기</h2>
-  <p class="muted">관리자 가입 신청이 완료되었습니다. 기존 관리자가 승인할 때까지 기다려 주세요.</p>
-  <button id="pendingLogout" class="secondary">로그아웃</button>
-</section>
-
-<section id="app" class="hidden">
-<section class="card"><div class="topbar"><strong>관리자 대시보드</strong><button id="logoutBtn" class="secondary">로그아웃</button></div></section>
-<section class="card"><h2>👥 이용자·관리자 계정 관리</h2><div id="users"></div></section>
-<section class="card"><h2>⏰ 신청 예약시간</h2><div class="grid2"><input id="start" type="datetime-local"><input id="end" type="datetime-local"></div><button id="saveTime" class="primary">시간 저장</button><button id="openNow" class="ok">지금부터 1시간</button><button id="closeNow" class="no">즉시 마감</button><div id="scheduleStatus" class="statusbox"></div></section>
-<section class="card"><h2>📋 신청곡 관리</h2><div id="requests"></div></section>
-</section>
-
-<script type="module" src="admin-app.js"></script></main></body></html>
+<script type="module" src="admin-app.js"></script>
+</body>
+</html>
