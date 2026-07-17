@@ -109,8 +109,8 @@ window.setRequestStatus = async (id, status) => {
     }
 
     const notice = status === "approved"
-      ? "승인되었습니다. 음원 발매 이후 공고문을 발송하겠습니다."
-      : "거절되었습니다. 다른 음원을 말씀해 주세요.";
+      ? "음원 승인"
+      : "음원 거절";
 
     await updateDoc(ref, {
       status,

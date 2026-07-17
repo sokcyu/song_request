@@ -11,3 +11,9 @@ button{border:0;background:#7c3aed;color:#fff;font-weight:800;cursor:pointer}
 button:disabled{opacity:.4;cursor:not-allowed}
 .statusbox{padding:13px;border-radius:12px;background:#172033;line-height:1.55}
 .help{color:#aab4c8;font-size:13px;line-height:1.6}
+
+.item{background:#0b1220;border:1px solid #33415e;border-radius:14px;padding:14px;margin-top:10px}
+.title{font-size:18px;font-weight:900}.muted{color:#aab4c8;font-size:13px;line-height:1.55}
+.badge{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:999px;background:#29364f}
+.notice{padding:10px;border-radius:10px;background:#172033;margin-top:10px}
+.empty{text-align:center;color:#9ca3af;padding:20px}

@@ -11,6 +11,7 @@ const $ = s => document.querySelector(s);
 let currentName = localStorage.getItem("cj_simple_user_name") || "";
 let schedule = null;
 let submitting = false;
+let requestUnsubs = [];
 
 const fmt = value => {
   const date = value?.toDate ? value.toDate() : new Date(value);
@@ -22,6 +23,13 @@ const fmt = value => {
 const esc = (v="") => String(v).replace(/[&<>"']/g,c=>({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
 }[c]));
+
+function statusLabel(status){
+  if(status === "approved") return "음원 승인";
+  if(status === "rejected") return "음원 거절";
+  if(status === "deleted") return "삭제 처리";
+  return "승인 대기";
+}
 
 function availability(){
   if(!schedule?.start || !schedule?.end){
@@ -39,22 +47,68 @@ function renderSchedule(){
   $("#submitButton").disabled=!state.open || submitting;
 }
 
-function renderMyList(){
-  const items = JSON.parse(localStorage.getItem("cj_simple_user_requests") || "[]");
+function getLocalItems(){
+  return JSON.parse(localStorage.getItem("cj_simple_user_requests") || "[]");
+}
+
+function setLocalItems(items){
+  localStorage.setItem("cj_simple_user_requests", JSON.stringify(items.slice(0,30)));
+}
+
+function stopRequestListeners(){
+  requestUnsubs.forEach(fn => fn());
+  requestUnsubs = [];
+}
+
+function renderMyList(items=getLocalItems()){
   $("#myList").innerHTML = items.length ? items.map(x=>`
     <div class="item">
       <div class="title">${esc(x.song)}</div>
       <div class="muted">${esc(x.artist)} · ${esc(x.createdAt)}</div>
-      <span class="badge">신청 완료</span>
+      <span class="badge">${esc(statusLabel(x.status))}</span>
+      ${x.notice ? `<div class="notice">${esc(x.notice)}</div>` : ""}
     </div>
   `).join("") : '<div class="empty">이 기기에서 신청한 곡이 없습니다.</div>';
+}
+
+function listenMyRequests(){
+  stopRequestListeners();
+  const items = getLocalItems();
+  renderMyList(items);
+
+  items.forEach(item => {
+    if(!item.id) return;
+    const unsub = onSnapshot(doc(db, "requests", item.id), snap => {
+      const latest = getLocalItems();
+      const idx = latest.findIndex(x => x.id === item.id);
+      if(idx < 0) return;
+
+      if(snap.exists()){
+        const data = snap.data();
+        latest[idx] = {
+          ...latest[idx],
+          status: data.status || "pending",
+          notice: data.notice || ""
+        };
+      } else {
+        latest[idx] = {
+          ...latest[idx],
+          status: "deleted",
+          notice: "삭제 처리"
+        };
+      }
+      setLocalItems(latest);
+      renderMyList(latest);
+    }, console.error);
+    requestUnsubs.push(unsub);
+  });
 }
 
 function openApp(){
   $("#nameView").classList.add("hidden");
   $("#appView").classList.remove("hidden");
   $("#welcome").textContent = `${currentName}님`;
-  renderMyList();
+  listenMyRequests();
 }
 
 $("#startButton").onclick=()=>{
@@ -69,6 +123,7 @@ $("#startButton").onclick=()=>{
 };
 
 $("#changeName").onclick=()=>{
+  stopRequestListeners();
   localStorage.removeItem("cj_simple_user_name");
   currentName="";
   $("#appView").classList.add("hidden");
@@ -97,7 +152,7 @@ $("#submitButton").onclick=async()=>{
   renderSchedule();
 
   try{
-    await addDoc(collection(db,"requests"),{
+    const ref = await addDoc(collection(db,"requests"),{
       type:"simple-user",
       name:currentName,
       song,
@@ -105,22 +160,25 @@ $("#submitButton").onclick=async()=>{
       keyword,
       message,
       status:"pending",
-      notice:"신청이 접수되었습니다.",
+      notice:"승인 대기",
       createdAt:serverTimestamp()
     });
 
-    const localItems=JSON.parse(localStorage.getItem("cj_simple_user_requests") || "[]");
+    const localItems=getLocalItems();
     localItems.unshift({
+      id: ref.id,
       song,
       artist,
+      status:"pending",
+      notice:"승인 대기",
       createdAt:new Date().toLocaleString("ko-KR")
     });
-    localStorage.setItem("cj_simple_user_requests",JSON.stringify(localItems.slice(0,30)));
+    setLocalItems(localItems);
 
     $("#song").value="";
     $("#artist").value="";
     $("#message").value="";
-    renderMyList();
+    listenMyRequests();
     alert("신청되었습니다.");
   }catch(error){
     console.error(error);
