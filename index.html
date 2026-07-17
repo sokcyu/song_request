@@ -28,7 +28,12 @@
 
     <section class="card">
       <div id="scheduleStatus" class="statusbox">신청 가능 시간을 확인하는 중입니다.</div>
-      <h2>🎵 신청곡 등록</h2>
+      <h2>🎵 음악 신청</h2>
+      <select id="requestMode">
+        <option value="song">노래 제목·가수로 신청</option>
+        <option value="lyrics">가사 키워드로 신청</option>
+      </select>
+      <p class="help">가사 키워드 신청을 선택하면 노래 제목과 가수는 입력하지 않아도 됩니다.</p>
       <input id="song" maxlength="100" placeholder="노래 제목">
       <input id="artist" maxlength="100" placeholder="가수">
       <select id="keyword">

@@ -11,6 +11,19 @@ const $ = s => document.querySelector(s);
 let currentName = localStorage.getItem("cj_simple_user_name") || "";
 let schedule = null;
 let submitting = false;
+
+function updateRequestMode(){
+  const mode = $("#requestMode").value;
+  const lyricsMode = mode === "lyrics";
+  $("#song").disabled = lyricsMode;
+  $("#artist").disabled = lyricsMode;
+  $("#song").placeholder = lyricsMode ? "가사 키워드 신청에서는 입력하지 않아도 됩니다." : "노래 제목";
+  $("#artist").placeholder = lyricsMode ? "가사 키워드 신청에서는 입력하지 않아도 됩니다." : "가수";
+  if(lyricsMode){
+    $("#song").value = "";
+    $("#artist").value = "";
+  }
+}
 let requestUnsubs = [];
 
 const fmt = value => {
@@ -63,7 +76,7 @@ function stopRequestListeners(){
 function renderMyList(items=getLocalItems()){
   $("#myList").innerHTML = items.length ? items.map(x=>`
     <div class="item">
-      <div class="title">${esc(x.song)}</div>
+      <div class="title">${esc(x.requestMode === "lyrics" ? "가사 키워드 신청" : x.song)}</div>
       <div class="muted">${esc(x.artist)} · ${esc(x.keyword || "")} · ${esc(x.createdAt)}</div>
       ${x.lyricsKeywords?.length ? `<div class="notice">가사 키워드: ${x.lyricsKeywords.map(esc).join(", ")}</div>` : ""}
       <span class="badge">${esc(statusLabel(x.status))}</span>
@@ -139,6 +152,7 @@ $("#submitButton").onclick=async()=>{
     return;
   }
 
+  const requestMode=$("#requestMode").value;
   const song=$("#song").value.trim();
   const artist=$("#artist").value.trim();
   const keyword=$("#keyword").value;
@@ -148,6 +162,11 @@ $("#submitButton").onclick=async()=>{
     .map(x=>x.trim())
     .filter(Boolean);
   const message=$("#message").value.trim();
+
+  if(requestMode === "lyrics" && lyricsKeywords.length === 0){
+    alert("가사 키워드를 1개 이상 입력하세요.");
+    return;
+  }
 
   if(lyricsKeywords.length > 5){
     alert("가사 키워드는 최대 5개까지 입력할 수 있습니다.");
@@ -159,8 +178,13 @@ $("#submitButton").onclick=async()=>{
     return;
   }
 
-  if(!song || !artist || !keyword){
+  if(requestMode === "song" && (!song || !artist || !keyword)){
     alert("노래 제목, 가수, 음악 키워드를 모두 입력하세요.");
+    return;
+  }
+
+  if(requestMode === "lyrics" && !keyword){
+    alert("음악 키워드를 선택하세요.");
     return;
   }
 
@@ -170,9 +194,10 @@ $("#submitButton").onclick=async()=>{
   try{
     const ref = await addDoc(collection(db,"requests"),{
       type:"simple-user",
+      requestMode,
       name:currentName,
-      song,
-      artist,
+      song: requestMode === "lyrics" ? "" : song,
+      artist: requestMode === "lyrics" ? "" : artist,
       keyword,
       lyricsKeywords,
       message,
@@ -184,8 +209,8 @@ $("#submitButton").onclick=async()=>{
     const localItems=getLocalItems();
     localItems.unshift({
       id: ref.id,
-      song,
-      artist,
+      song: requestMode === "lyrics" ? "" : song,
+      artist: requestMode === "lyrics" ? "" : artist,
       keyword,
       lyricsKeywords,
       status:"pending",
@@ -222,3 +247,6 @@ setInterval(renderSchedule,1000);
 if(currentName){
   openApp();
 }
+
+$("#requestMode").addEventListener("change", updateRequestMode);
+updateRequestMode();
