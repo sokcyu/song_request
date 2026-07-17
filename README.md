@@ -1,29 +1,27 @@
-# CJ스튜디오 새 관리자 프로그램
+# CJ스튜디오 비로그인 관리자 프로그램
 
-## 포함 파일
-- admin.html
-- admin-app.js
-- admin-style.css
-- firebase-config.js
-- firestore.rules
+## 변경 사항
+- 이메일 로그인 삭제
+- Google 로그인 삭제
+- 비밀번호 찾기 삭제
+- 관리자 프로필 검사 삭제
+- 관리자 페이지 접속 즉시 대시보드 표시
 
-## 관리자 권한 설정
-Firebase Authentication에 계정을 만든 뒤 Firestore의 `users/{uid}` 문서에 아래 필드를 설정하세요.
+## 중요한 보안 경고
+이 버전은 로그인 없이 관리자 기능을 사용합니다.
+관리자 주소를 아는 누구나 다음 작업을 할 수 있습니다.
 
-- name: 관리자 이름
-- email: 관리자 이메일
-- role: admin
-- status: approved
+- 이용자 승인/정지/삭제
+- 신청곡 승인/거절/삭제
+- 예약시간 변경
 
-## Firebase Authentication 설정
-- Email/Password 사용 설정
-- Google 사용 설정
-- 승인된 도메인에 `sokcyu.github.io` 추가 확인
+Firestore 규칙도 공개 쓰기로 변경해야 동작합니다.
+공개 운영에는 권장하지 않습니다.
 
-## Firestore 규칙
-Firestore Database → 규칙 탭에서 `firestore.rules` 내용을 붙여넣고 게시하세요.
+## 적용 방법
+1. ZIP 안의 파일을 GitHub 저장소 루트에 업로드합니다.
+2. Firestore Database → 규칙에서 `firestore.rules` 내용을 붙여넣고 게시합니다.
+3. GitHub Pages 배포 후 관리자 페이지를 엽니다.
 
-## GitHub 업로드
-모든 파일을 저장소 루트에 업로드합니다.
 관리자 주소:
 https://sokcyu.github.io/song_request/admin.html

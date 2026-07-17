@@ -10,59 +10,43 @@
 <main>
   <h1>🎛️ CJ스튜디오 관리자</h1>
 
-  <section id="loginView" class="card">
-    <h2>관리자 로그인</h2>
-    <input id="email" type="email" placeholder="관리자 이메일">
-    <input id="password" type="password" placeholder="비밀번호">
-    <button id="emailLogin" class="primary">이메일로 로그인</button>
-    <button id="googleLogin" class="google">Google로 로그인</button>
-    <button id="resetPassword" class="secondary">비밀번호 찾기</button>
-    <p class="help">Firestore 사용자 문서가 <b>role: admin</b>, <b>status: approved</b>인 계정만 접속할 수 있습니다.</p>
+  <section class="warning">
+    ⚠️ 비로그인 관리자 페이지입니다. 이 주소를 아는 사람은 누구나 관리 기능을 사용할 수 있습니다.
   </section>
 
-  <section id="appView" class="hidden">
-    <section class="card topbar">
-      <div>
-        <strong id="adminName">관리자</strong>
-        <div id="adminEmail" class="muted"></div>
-      </div>
-      <button id="logout" class="secondary small">로그아웃</button>
-    </section>
+  <section class="card">
+    <h2>⏰ 신청 접수 시간</h2>
+    <div class="grid2">
+      <label>시작 시간<input id="startTime" type="datetime-local"></label>
+      <label>종료 시간<input id="endTime" type="datetime-local"></label>
+    </div>
+    <button id="saveSchedule" class="primary">예약시간 저장</button>
+    <div class="grid2">
+      <button id="openOneHour" class="ok">지금부터 1시간 접수</button>
+      <button id="closeNow" class="no">즉시 마감</button>
+    </div>
+    <div id="scheduleStatus" class="statusbox">예약시간을 불러오는 중입니다.</div>
+  </section>
 
-    <section class="card">
-      <h2>⏰ 신청 접수 시간</h2>
-      <div class="grid2">
-        <label>시작 시간<input id="startTime" type="datetime-local"></label>
-        <label>종료 시간<input id="endTime" type="datetime-local"></label>
-      </div>
-      <button id="saveSchedule" class="primary">예약시간 저장</button>
-      <div class="grid2">
-        <button id="openOneHour" class="ok">지금부터 1시간 접수</button>
-        <button id="closeNow" class="no">즉시 마감</button>
-      </div>
-      <div id="scheduleStatus" class="statusbox">예약시간을 불러오는 중입니다.</div>
-    </section>
+  <section class="card">
+    <h2>👥 이용자 관리</h2>
+    <input id="userSearch" placeholder="이름 또는 이메일 검색">
+    <div id="userList"></div>
+  </section>
 
-    <section class="card">
-      <h2>👥 이용자 관리</h2>
-      <input id="userSearch" placeholder="이름 또는 이메일 검색">
-      <div id="userList"></div>
-    </section>
-
-    <section class="card">
-      <h2>🎵 신청곡 관리</h2>
-      <div class="toolbar">
-        <input id="requestSearch" placeholder="노래·가수·신청자 검색">
-        <select id="requestFilter">
-          <option value="all">전체 상태</option>
-          <option value="pending">대기</option>
-          <option value="approved">승인</option>
-          <option value="rejected">거절</option>
-          <option value="deleted">삭제 처리</option>
-        </select>
-      </div>
-      <div id="requestList"></div>
-    </section>
+  <section class="card">
+    <h2>🎵 신청곡 관리</h2>
+    <div class="toolbar">
+      <input id="requestSearch" placeholder="노래·가수·신청자 검색">
+      <select id="requestFilter">
+        <option value="all">전체 상태</option>
+        <option value="pending">대기</option>
+        <option value="approved">승인</option>
+        <option value="rejected">거절</option>
+        <option value="deleted">삭제 처리</option>
+      </select>
+    </div>
+    <div id="requestList"></div>
   </section>
 </main>
 
