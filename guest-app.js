@@ -69,7 +69,8 @@ function renderList(items=getItems()){
   $("#guestList").innerHTML = items.length ? items.map(x=>`
     <div class="item">
       <div class="title">${esc(x.song)}</div>
-      <div class="muted">${esc(x.artist)} · ${esc(x.createdAt)}</div>
+      <div class="muted">${esc(x.artist)} · ${esc(x.keyword || "")} · ${esc(x.createdAt)}</div>
+      ${x.lyricsKeywords?.length ? `<div class="notice">가사 키워드: ${x.lyricsKeywords.map(esc).join(", ")}</div>` : ""}
       <span class="badge">${esc(statusLabel(x.status))}</span>
       ${x.notice ? `<div class="notice">${esc(x.notice)}</div>` : ""}
     </div>
@@ -126,10 +127,25 @@ $("#submitBtn").onclick = async () => {
   const song = $("#song").value.trim();
   const artist = $("#artist").value.trim();
   const keyword = $("#keyword").value;
+  const lyricsKeywordsRaw = $("#lyricsKeywords").value.trim();
+  const lyricsKeywords = lyricsKeywordsRaw
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean);
   const message = $("#message").value.trim();
 
-  if (!name || !song || !artist) {
-    alert("이름, 노래 제목, 가수를 모두 입력하세요.");
+  if (lyricsKeywords.length > 5) {
+    alert("가사 키워드는 최대 5개까지 입력할 수 있습니다.");
+    return;
+  }
+
+  if (lyricsKeywords.some(x => x.length > 20)) {
+    alert("가사 키워드 하나는 20자 이하로 입력하세요.");
+    return;
+  }
+
+  if (!name || !song || !artist || !keyword) {
+    alert("이름, 노래 제목, 가수, 음악 키워드를 모두 입력하세요.");
     return;
   }
 
@@ -143,6 +159,7 @@ $("#submitBtn").onclick = async () => {
       song,
       artist,
       keyword,
+      lyricsKeywords,
       message,
       status: "pending",
       notice: "승인 대기",
@@ -154,6 +171,8 @@ $("#submitBtn").onclick = async () => {
       id:ref.id,
       song,
       artist,
+      keyword,
+      lyricsKeywords,
       status:"pending",
       notice:"승인 대기",
       createdAt:new Date().toLocaleString("ko-KR")
@@ -162,6 +181,7 @@ $("#submitBtn").onclick = async () => {
 
     $("#song").value = "";
     $("#artist").value = "";
+    $("#lyricsKeywords").value = "";
     $("#message").value = "";
     listenRequests();
     alert("게스트 신청이 접수되었습니다.");

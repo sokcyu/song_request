@@ -68,10 +68,11 @@ function renderRequests() {
     <div class="item">
       <div class="title">${esc(r.song || "제목 없음")}</div>
       <div class="muted">
-        ${esc(r.artist || "")} · ${esc(r.name || "신청자 없음")}
+        ${esc(r.artist || "")} · ${esc(r.keyword || "키워드 없음")} · ${esc(r.name || "신청자 없음")}
         <br>${esc(r.type || "user")} · ${r.createdAt ? fmt(r.createdAt) : ""}
       </div>
       <span class="badge">${esc(r.status || "pending")}</span>
+      ${r.lyricsKeywords?.length ? `<div class="notice">✍️ 가사 키워드: ${r.lyricsKeywords.map(esc).join(", ")}</div>` : ""}
       ${r.notice ? `<div class="notice">📢 ${esc(r.notice)}</div>` : ""}
       <div class="actions">
         <button class="ok" onclick="setRequestStatus('${r.id}','approved')" ${r.status !== "pending" ? "disabled" : ""}>✅ 승인</button>
