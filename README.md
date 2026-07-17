@@ -1,15 +1,19 @@
-# CJ스튜디오 관리자 비밀번호 전용 버전
+# CJ스튜디오 이름만 간편 이용 버전
 
-- 이메일 로그인 제거
-- Google 로그인 제거
-- 회원가입 제거
-- 공용 관리자 비밀번호만 사용
-- 초기 비밀번호: 1234
-- 잠금 버튼으로 다시 비밀번호 화면 표시
+## 변경 내용
+- 회원가입 삭제
+- 이메일 로그인 삭제
+- 비밀번호 삭제
+- 이름 또는 닉네임만 입력하고 바로 이용
+- 예약시간 내에서만 신청
+- 신청곡은 Firestore requests 컬렉션에 저장
+- 같은 기기에서는 최근 신청곡을 로컬로 확인
 
-중요:
-이 비밀번호는 HTML 코드 안에 들어 있으므로 강한 보안 방식은 아닙니다.
-관리자 링크를 다른 사람에게 공유하지 마세요.
+## 업로드 파일
+- index.html
+- user-name-app.js
+- user-style.css
+- firebase-config.js
 
-관리자 주소:
-https://sokcyu.github.io/song_request/admin.html
+## 접속 주소
+https://sokcyu.github.io/song_request/

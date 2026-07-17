@@ -1,15 +1,57 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cj스튜디오 이용자</title><link rel="stylesheet" href="style.css"></head>
-<body><main><h1>🎧 cj스튜디오 이용자</h1>
-<section id="authArea">
-<section class="card"><h2>🔐 로그인</h2><input id="loginEmail" type="email" placeholder="이메일"><input id="loginPw" type="password" placeholder="비밀번호"><button id="loginBtn" class="primary">로그인</button></section>
-<section class="card"><h2>📝 회원가입</h2><input id="joinName" placeholder="이름 또는 닉네임"><input id="joinEmail" type="email" placeholder="이메일"><input id="joinPw" type="password" placeholder="비밀번호 6자 이상"><button id="joinBtn" class="secondary">가입 신청</button><p class="muted">가입 후 관리자가 승인해야 이용할 수 있습니다.</p></section>
-</section>
-<section id="pendingArea" class="card hidden"><h2>⏳ 관리자 승인 대기</h2><p class="muted">가입은 완료되었습니다. 관리자 승인을 기다려 주세요.</p><button id="pendingLogout" class="secondary">로그아웃</button></section>
-<section id="app" class="hidden">
-<section class="card"><div class="topbar"><div><strong id="welcome"></strong><div class="muted">승인된 이용자</div></div><button id="logoutBtn" class="secondary">로그아웃</button></div></section>
-<section class="card"><div id="timeStatus" class="statusbox"></div><h2>🎵 신청곡 등록</h2><input id="song" placeholder="노래 제목"><input id="artist" placeholder="가수"><select id="keyword"><option>기타</option><option>EDM</option><option>K-POP</option><option>POP</option><option>댄스</option><option>발라드</option><option>트로트</option><option>힙합</option></select><button id="addBtn" class="primary">신청하기</button></section>
-<section class="card"><h2>📋 내 신청 상태</h2><div id="list"></div></section>
-</section>
-<script type="module" src="user-app.js"></script></main></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CJ스튜디오 이용자</title>
+<link rel="stylesheet" href="user-style.css">
+</head>
+<body>
+<main>
+  <h1>🎧 CJ스튜디오 이용자</h1>
+
+  <section id="nameView" class="card">
+    <h2>간편 이용</h2>
+    <input id="nameInput" maxlength="30" placeholder="이름 또는 닉네임">
+    <button id="startButton" class="primary">바로 이용하기</button>
+    <p class="help">회원가입과 비밀번호 없이 이름만 입력하면 됩니다.</p>
+  </section>
+
+  <section id="appView" class="hidden">
+    <section class="card topbar">
+      <div>
+        <strong id="welcome"></strong>
+        <div class="muted">간편 이용자</div>
+      </div>
+      <button id="changeName" class="secondary small">이름 변경</button>
+    </section>
+
+    <section class="card">
+      <div id="scheduleStatus" class="statusbox">신청 가능 시간을 확인하는 중입니다.</div>
+      <h2>🎵 신청곡 등록</h2>
+      <input id="song" maxlength="100" placeholder="노래 제목">
+      <input id="artist" maxlength="100" placeholder="가수">
+      <select id="keyword">
+        <option>기타</option>
+        <option>EDM</option>
+        <option>K-POP</option>
+        <option>POP</option>
+        <option>댄스</option>
+        <option>발라드</option>
+        <option>트로트</option>
+        <option>힙합</option>
+      </select>
+      <textarea id="message" maxlength="200" placeholder="전달할 말 (선택)"></textarea>
+      <button id="submitButton" class="primary" disabled>신청하기</button>
+    </section>
+
+    <section class="card">
+      <h2>📋 이 기기에서 신청한 곡</h2>
+      <div id="myList"></div>
+    </section>
+  </section>
+</main>
+
+<script type="module" src="user-name-app.js"></script>
+</body>
+</html>
