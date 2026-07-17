@@ -1,0 +1,22 @@
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+main{max-width:900px;margin:auto;padding:20px}
+h1{text-align:center;margin:8px 0 20px}
+h2{margin:0 0 12px;font-size:20px}
+.card{background:#151d31;border:1px solid #2d3955;border-radius:18px;padding:18px;margin-bottom:14px}
+.warning{background:#7f1d1d;border:1px solid #ef4444;border-radius:14px;padding:14px;margin-bottom:14px;line-height:1.5}
+input,select,button{width:100%;padding:13px;margin-top:9px;border-radius:11px;font:inherit}
+input,select{background:#0b1220;color:#fff;border:1px solid #354462}
+button{border:0;color:#fff;font-weight:800;cursor:pointer}
+.primary{background:#7c3aed}.ok{background:#16a34a}.no{background:#dc2626}.youtube{background:#e11d48}.delete{background:#6b7280}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:9px}
+.item{background:#0b1220;border:1px solid #33415e;border-radius:14px;padding:14px;margin-top:10px}
+.title{font-size:18px;font-weight:900}.muted{color:#aab4c8;font-size:13px;line-height:1.55}
+.badge{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:999px;background:#29364f}
+.notice,.statusbox{margin-top:10px;padding:11px;border-radius:10px;background:#172033}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+button:disabled{opacity:.38;cursor:not-allowed}
+.empty{text-align:center;color:#9ca3af;padding:22px}
+@media(max-width:580px){.grid2,.toolbar,.actions{grid-template-columns:1fr}}
+
+.hidden{display:none}.help{color:#aab4c8;font-size:13px;line-height:1.6}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}.small{width:auto;margin:0}.secondary{background:#334155}
