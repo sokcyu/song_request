@@ -68,7 +68,7 @@ function renderRequests() {
     <div class="item">
       <div class="title">${esc(r.requestMode === "lyrics" ? "가사 키워드 신청" : (r.song || "제목 없음"))}</div>
       <div class="muted">
-        ${esc(r.requestMode === "lyrics" ? "제목·가수 미입력" : (r.artist || ""))} · ${esc(r.keyword || "키워드 없음")} · ${esc(r.name || "신청자 없음")}
+        ${esc(r.requestMode === "lyrics" ? "제목·가수 미입력" : (r.artist || ""))} · 장르: ${esc(r.genre || "미선택")} · ${esc(r.keyword || "키워드 없음")} · ${esc(r.name || "신청자 없음")}
         <br>${esc(r.type || "user")} · ${r.createdAt ? fmt(r.createdAt) : ""}
       </div>
       <span class="badge">${esc(r.status || "pending")}</span>

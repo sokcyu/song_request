@@ -77,7 +77,7 @@ function renderMyList(items=getLocalItems()){
   $("#myList").innerHTML = items.length ? items.map(x=>`
     <div class="item">
       <div class="title">${esc(x.requestMode === "lyrics" ? "가사 키워드 신청" : x.song)}</div>
-      <div class="muted">${esc(x.artist)} · ${esc(x.keyword || "")} · ${esc(x.createdAt)}</div>
+      <div class="muted">${esc(x.artist)} · 장르: ${esc(x.genre || "")} · ${esc(x.keyword || "")} · ${esc(x.createdAt)}</div>
       ${x.lyricsKeywords?.length ? `<div class="notice">가사 키워드: ${x.lyricsKeywords.map(esc).join(", ")}</div>` : ""}
       <span class="badge">${esc(statusLabel(x.status))}</span>
       ${x.notice ? `<div class="notice">${esc(x.notice)}</div>` : ""}
@@ -153,6 +153,7 @@ $("#submitButton").onclick=async()=>{
   }
 
   const requestMode=$("#requestMode").value;
+  const genre=$("#genre").value;
   const song=$("#song").value.trim();
   const artist=$("#artist").value.trim();
   const keyword=$("#keyword").value;
@@ -162,6 +163,11 @@ $("#submitButton").onclick=async()=>{
     .map(x=>x.trim())
     .filter(Boolean);
   const message=$("#message").value.trim();
+
+  if(!genre){
+    alert("장르를 선택하세요.");
+    return;
+  }
 
   if(requestMode === "lyrics" && lyricsKeywords.length === 0){
     alert("가사 키워드를 1개 이상 입력하세요.");
@@ -195,9 +201,11 @@ $("#submitButton").onclick=async()=>{
     const ref = await addDoc(collection(db,"requests"),{
       type:"simple-user",
       requestMode,
+      genre,
       name:currentName,
       song: requestMode === "lyrics" ? "" : song,
       artist: requestMode === "lyrics" ? "" : artist,
+      genre,
       keyword,
       lyricsKeywords,
       message,
@@ -211,6 +219,7 @@ $("#submitButton").onclick=async()=>{
       id: ref.id,
       song: requestMode === "lyrics" ? "" : song,
       artist: requestMode === "lyrics" ? "" : artist,
+      genre,
       keyword,
       lyricsKeywords,
       status:"pending",
