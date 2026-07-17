@@ -1,0 +1,13 @@
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#fff;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+main{max-width:640px;margin:auto;padding:20px}
+h1{text-align:center;margin:10px 0 20px}
+h2{margin:18px 0 8px}
+.card{background:#151d31;border:1px solid #2d3955;border-radius:18px;padding:18px}
+input,select,textarea,button{width:100%;padding:13px;margin-top:10px;border-radius:11px;font:inherit}
+input,select,textarea{background:#0b1220;color:#fff;border:1px solid #354462}
+textarea{min-height:92px;resize:vertical}
+button{border:0;background:#7c3aed;color:#fff;font-weight:800;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.statusbox{padding:13px;border-radius:12px;background:#172033;line-height:1.55}
+.help{color:#aab4c8;font-size:13px;line-height:1.6}
