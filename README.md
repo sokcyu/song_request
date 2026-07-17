@@ -1,10 +1,32 @@
-# cj스튜디오 시간제 신청곡 시스템
+# cj스튜디오 Firebase 실시간 신청곡 시스템
 
-- index.html: 이용자 페이지
+## 포함 파일
+- index.html: 이용자 회원가입/로그인/신청
 - guest.html: 게스트 페이지
 - admin.html: 관리자 페이지
-- 관리자 초기 비밀번호: 1234
+- firebase-config.js: Firebase 연결 설정
+- user-app.js / admin-app.js: Firebase 연동 코드
+- firestore.rules: Firestore 보안 규칙
 
-관리자가 예약 시작/종료 시간을 설정하면 이용자와 게스트는 해당 시간에만 신청할 수 있습니다.
+## Firebase Console 필수 설정
 
-중요: 현재 버전은 localStorage 방식이므로 같은 기기와 같은 브라우저에서만 예약시간과 신청내역이 공유됩니다. 서로 다른 휴대폰에서 사용하려면 Firebase 연동이 필요합니다.
+### 1. Authentication
+Authentication → Sign-in method → 이메일/비밀번호를 사용 설정합니다.
+
+### 2. Firestore 규칙
+Firestore Database → 규칙 탭에서 `firestore.rules`의 내용을 붙여넣고 게시합니다.
+
+### 3. 첫 관리자 만들기
+1. 일반 이용자 페이지에서 관리자용 이메일로 회원가입합니다.
+2. Firestore → users 컬렉션 → 해당 사용자 문서를 엽니다.
+3. `role` 값을 `user`에서 `admin`으로 변경합니다.
+4. `status` 값을 `pending`에서 `approved`로 변경합니다.
+5. 그 계정으로 admin.html에 로그인합니다.
+
+## GitHub 업로드
+모든 파일을 저장소 루트에 업로드하고 Commit changes를 누릅니다.
+
+## 주소
+- 이용자: https://sokcyu.github.io/song_request/
+- 게스트: https://sokcyu.github.io/song_request/guest.html
+- 관리자: https://sokcyu.github.io/song_request/admin.html

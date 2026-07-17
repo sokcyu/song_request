@@ -1,65 +1,15 @@
 <!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cj스튜디오 신청곡</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Noto Sans KR",sans-serif;background:#0b1020;color:#fff}
-main{max-width:680px;margin:auto;padding:20px}.card{background:#151d31;border:1px solid #2d3955;border-radius:18px;padding:18px;margin-bottom:14px}
-h1{text-align:center}h2{margin-top:0}input,select,button{width:100%;padding:13px;margin-top:9px;border-radius:11px;font:inherit}
-input,select{background:#0b1220;color:#fff;border:1px solid #354462}button{border:0;background:#7c3aed;color:#fff;font-weight:800}
-button:disabled{opacity:.4}.statusbox{padding:14px;border-radius:14px;background:#0b1220;border:1px solid #33415e;margin-bottom:12px}
-.item{background:#0b1220;border:1px solid #33415e;border-radius:14px;padding:14px;margin-top:10px}.song{font-size:18px;font-weight:900}
-.muted{color:#aab4c8;font-size:13px;margin-top:4px}.notice{margin-top:10px;padding:10px;background:#172033;border-radius:10px}.badge{display:inline-block;margin-top:8px;padding:5px 9px;background:#29364f;border-radius:999px}
-.empty{text-align:center;color:#9ca3af;padding:20px}
-</style>
-</head>
-<body>
-<main>
-<h1>🎧 cj스튜디오 신청곡</h1>
-<section class="card">
-<div id="status" class="statusbox"></div>
-<h2>🎵 신청곡 등록</h2>
-<input id="name" placeholder="이름 또는 닉네임">
-<input id="song" placeholder="노래 제목">
-<input id="artist" placeholder="가수">
-<select id="keyword"><option>기타</option><option>EDM</option><option>K-POP</option><option>POP</option><option>댄스</option><option>발라드</option><option>트로트</option><option>힙합</option></select>
-<button id="addBtn">신청하기</button>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cj스튜디오 이용자</title><link rel="stylesheet" href="style.css"></head>
+<body><main><h1>🎧 cj스튜디오 이용자</h1>
+<section id="authArea">
+<section class="card"><h2>🔐 로그인</h2><input id="loginEmail" type="email" placeholder="이메일"><input id="loginPw" type="password" placeholder="비밀번호"><button id="loginBtn" class="primary">로그인</button></section>
+<section class="card"><h2>📝 회원가입</h2><input id="joinName" placeholder="이름 또는 닉네임"><input id="joinEmail" type="email" placeholder="이메일"><input id="joinPw" type="password" placeholder="비밀번호 6자 이상"><button id="joinBtn" class="secondary">가입 신청</button><p class="muted">가입 후 관리자가 승인해야 이용할 수 있습니다.</p></section>
 </section>
+<section id="pendingArea" class="card hidden"><h2>⏳ 관리자 승인 대기</h2><p class="muted">가입은 완료되었습니다. 관리자 승인을 기다려 주세요.</p><button id="pendingLogout" class="secondary">로그아웃</button></section>
+<section id="app" class="hidden">
+<section class="card"><div class="topbar"><div><strong id="welcome"></strong><div class="muted">승인된 이용자</div></div><button id="logoutBtn" class="secondary">로그아웃</button></div></section>
+<section class="card"><div id="timeStatus" class="statusbox"></div><h2>🎵 신청곡 등록</h2><input id="song" placeholder="노래 제목"><input id="artist" placeholder="가수"><select id="keyword"><option>기타</option><option>EDM</option><option>K-POP</option><option>POP</option><option>댄스</option><option>발라드</option><option>트로트</option><option>힙합</option></select><button id="addBtn" class="primary">신청하기</button></section>
 <section class="card"><h2>📋 내 신청 상태</h2><div id="list"></div></section>
-</main>
-<script>
-const KEY="cj_simple_requests",SCHEDULE_KEY="cj_request_schedule",USER_KEY="cj_simple_user";
-const $=s=>document.querySelector(s);
-function items(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch{return[]}}
-function schedule(){try{return JSON.parse(localStorage.getItem(SCHEDULE_KEY))||{}}catch{return{}}}
-function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function formatDate(v){return new Intl.DateTimeFormat("ko-KR",{dateStyle:"short",timeStyle:"short"}).format(new Date(v))}
-function availability(){
- const s=schedule(),now=Date.now();
- if(!s.start||!s.end)return{open:false,text:"⚪ 신청 시간이 설정되지 않았습니다."};
- const start=new Date(s.start).getTime(),end=new Date(s.end).getTime();
- if(now<start)return{open:false,text:`🟡 신청 접수 준비 중<br><span class="muted">${formatDate(s.start)}부터 이용 가능합니다.</span>`};
- if(now<=end)return{open:true,text:`🟢 신청 접수 중<br><span class="muted">${formatDate(s.end)}까지 이용 가능합니다.</span>`};
- return{open:false,text:`🔴 신청 접수가 마감되었습니다.<br><span class="muted">다음 접수 시간을 기다려 주세요.</span>`};
-}
-function renderTime(){
- const a=availability();$("#status").innerHTML=a.text;$("#addBtn").disabled=!a.open;
-}
-$("#addBtn").onclick=()=>{
- if(!availability().open){alert("현재는 신청 가능한 시간이 아닙니다.");return}
- const name=$("#name").value.trim(),song=$("#song").value.trim(),artist=$("#artist").value.trim(),keyword=$("#keyword").value;
- if(!name||!song||!artist){alert("모든 내용을 입력하세요.");return}
- localStorage.setItem(USER_KEY,name);
- const data=items();data.unshift({id:Date.now(),name,song,artist,keyword,status:"대기",notice:"신청이 접수되었습니다. 관리자 확인을 기다려 주세요.",createdAt:new Date().toISOString()});
- localStorage.setItem(KEY,JSON.stringify(data));$("#song").value="";$("#artist").value="";renderList();alert("신청되었습니다.");
-}
-function renderList(){
- const user=localStorage.getItem(USER_KEY)||"",data=items().filter(x=>!user||x.name===user);
- $("#list").innerHTML=data.length?data.map(x=>`<div class="item"><div class="song">${esc(x.song)}</div><div class="muted">${esc(x.artist)} · ${esc(x.name)}</div><span class="badge">${esc(x.status)}</span>${x.notice?`<div class="notice">📢 ${esc(x.notice)}</div>`:""}</div>`).join(""):'<div class="empty">신청곡이 없습니다.</div>';
-}
-setInterval(renderTime,1000);window.addEventListener("storage",()=>{renderTime();renderList()});renderTime();renderList();
-</script>
-</body>
-</html>
+</section>
+<script type="module" src="user-app.js"></script></main></body></html>
