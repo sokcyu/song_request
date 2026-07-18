@@ -1,79 +1,15 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CJ스튜디오 이용자</title>
-<link rel="stylesheet" href="user-style.css">
-</head>
-<body>
-<main>
-  <h1>🎧 CJ스튜디오 이용자</h1>
-
-  <section id="nameView" class="card">
-    <h2>간편 이용</h2>
-    <input id="nameInput" maxlength="30" placeholder="이름 또는 닉네임">
-    <button id="startButton" class="primary">바로 이용하기</button>
-    <p class="help">회원가입과 비밀번호 없이 이름만 입력하면 됩니다.</p>
-  </section>
-
-  <section id="appView" class="hidden">
-    <section class="card topbar">
-      <div>
-        <strong id="welcome"></strong>
-        <div class="muted">간편 이용자</div>
-      </div>
-      <button id="changeName" class="secondary small">이름 변경</button>
-    </section>
-
-    <section class="card">
-      <div id="scheduleStatus" class="statusbox">신청 가능 시간을 확인하는 중입니다.</div>
-      <h2>🎵 음악 신청</h2>
-      <select id="requestMode">
-        <option value="song">노래 제목·가수로 신청</option>
-        <option value="lyrics">가사 키워드로 신청</option>
-      </select>
-      <p class="help">가사 키워드 신청을 선택하면 노래 제목과 가수는 입력하지 않아도 됩니다.</p>
-      <input id="song" maxlength="100" placeholder="노래 제목">
-      <input id="artist" maxlength="100" placeholder="가수">
-      <label class="field-label" for="genre">장르 선택</label>
-      <select id="genre" class="scroll-select">
-        <option value="">장르를 선택하세요</option>
-        <option value="K-POP">K-POP</option>
-        <option value="POP">POP</option>
-        <option value="발라드">발라드</option>
-        <option value="댄스">댄스</option>
-        <option value="힙합">힙합</option>
-        <option value="R&B">R&B</option>
-        <option value="록">록</option>
-        <option value="트로트">트로트</option>
-        <option value="EDM">EDM</option>
-        <option value="재즈">재즈</option>
-        <option value="클래식">클래식</option>
-        <option value="인디">인디</option>
-        <option value="기타">기타</option>
-      </select>
-      <select id="keyword">
-        <option value="">음악 키워드 선택</option>
-        <option value="K-POP">K-POP</option>
-        <option value="POP">POP</option>
-        <option value="발라드">발라드</option>
-        <option value="댄스">댄스</option>
-        <option value="트로트">트로트</option>
-      </select>
-      <input id="lyricsKeywords" maxlength="100" placeholder="가사 키워드 최대 5개 (예: 사랑, 바다, 추억, 여름, 여행)">
-      <p class="help">가사에 넣을 단어를 쉼표(,)로 구분해 최대 5개 입력하세요.</p>
-      <textarea id="message" maxlength="200" placeholder="전달할 말 (선택)"></textarea>
-      <button id="submitButton" class="primary" disabled>신청하기</button>
-    </section>
-
-    <section class="card">
-      <h2>📋 이 기기에서 신청한 곡</h2>
-      <div id="myList"></div>
-    </section>
-  </section>
-</main>
-
-<script type="module" src="user-name-app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CJ 이용자</title><link rel="stylesheet" href="user-style.css"></head><body><main>
+<h1>🎧 CJ스튜디오 이용자</h1>
+<section id="auth" class="card">
+<h2>회원 로그인</h2><input id="loginId" placeholder="아이디"><input id="loginPw" type="password" placeholder="비밀번호"><button id="loginBtn">로그인</button>
+<hr><h2>회원 등록</h2><input id="name" placeholder="이름"><input id="regId" placeholder="아이디"><input id="regPw" type="password" placeholder="비밀번호"><input id="phone" placeholder="휴대폰번호(선택)"><input id="email" placeholder="이메일(선택)"><button id="regBtn">가입 승인 요청</button><div id="authMsg" class="notice hidden"></div>
+</section>
+<section id="app" class="hidden">
+<section class="card topbar"><div><strong id="welcome"></strong><div id="memberId" class="muted"></div></div><button id="logout" class="secondary small">로그아웃</button></section>
+<section class="card"><div id="schedule" class="statusbox"></div><h2>음악 신청</h2>
+<select id="mode"><option value="song">노래 제목·가수로 신청</option><option value="lyrics">가사 키워드로 신청</option></select>
+<input id="song" placeholder="노래 제목"><input id="artist" placeholder="가수">
+<select id="genre"><option value="">장르 선택</option><option>K-POP</option><option>POP</option><option>발라드</option><option>댄스</option><option>힙합</option><option>R&B</option><option>록</option><option>트로트</option><option>EDM</option><option>재즈</option><option>클래식</option><option>인디</option><option>기타</option></select>
+<input id="lyrics" placeholder="가사 키워드 최대 5개, 쉼표 구분"><textarea id="message" placeholder="전달할 말(선택)"></textarea><button id="submit" disabled>신청하기</button></section>
+<section class="card"><h2>내 신청곡</h2><div id="myList"></div></section></section>
+<script type="module" src="member-app.js"></script></main></body></html>
