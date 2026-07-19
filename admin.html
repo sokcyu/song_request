@@ -1,7 +1,64 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CJ 관리자</title><link rel="stylesheet" href="admin-style.css"></head><body><main><h1>🎛 관리자</h1>
-<section id="login" class="card"><input id="adminId" placeholder="관리자 아이디"><input id="adminPw" type="password" placeholder="관리자 비밀번호"><button id="adminLogin">로그인</button><div id="loginMsg" class="notice hidden"></div></section>
-<section id="app" class="hidden"><section class="card topbar"><strong>관리자 대시보드</strong><button id="logout" class="secondary small">로그아웃</button></section>
-<section class="card"><h2>회원 승인 관리</h2><select id="memberFilter"><option value="all">전체</option><option value="pending">승인 대기</option><option value="approved">승인 완료</option><option value="rejected">가입 거절</option></select><div id="members"></div></section>
-<section class="card"><h2>신청 시간</h2><div class="grid2"><input id="start" type="datetime-local"><input id="end" type="datetime-local"></div><button id="saveSchedule">저장</button><div id="schedule" class="statusbox"></div></section>
-<section class="card"><h2>신청곡 관리</h2><div id="requests"></div></section></section>
-<script type="module" src="admin-app.js"></script></main></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CJ 관리자</title>
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+<main>
+  <h1>관리자</h1>
+  <section id="login" class="card">
+    <input id="adminId" placeholder="관리자 아이디">
+    <input id="adminPw" type="password" placeholder="관리자 비밀번호">
+    <button id="adminLogin">로그인</button>
+    <div id="loginMsg" class="notice hidden"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <section class="card topbar">
+      <strong>관리자 대시보드</strong>
+      <button id="logout" class="secondary small">로그아웃</button>
+    </section>
+
+    <section class="card">
+      <h2>회원 승인 관리</h2>
+      <select id="memberFilter">
+        <option value="all">전체</option>
+        <option value="pending">승인 대기</option>
+        <option value="approved">승인 완료</option>
+        <option value="rejected">가입 거절</option>
+      </select>
+      <div id="members"></div>
+    </section>
+
+    <section class="card">
+      <h2>신청 시간</h2>
+      <div class="grid2">
+        <input id="start" type="datetime-local">
+        <input id="end" type="datetime-local">
+      </div>
+      <button id="saveSchedule">저장</button>
+      <div id="schedule" class="statusbox"></div>
+    </section>
+
+    <section class="card">
+      <h2>신청곡 관리</h2>
+      <select id="requestFilter">
+        <option value="all">전체 상태</option>
+        <option value="pending">승인 대기</option>
+        <option value="approved">신청 승인</option>
+        <option value="rejected">신청 거절</option>
+        <option value="production_pending">제작 대기</option>
+        <option value="production_completed">제작 완료</option>
+        <option value="production_cancelled">제작 취소</option>
+      </select>
+      <div id="requests"></div>
+    </section>
+  </section>
+
+  <script type="module" src="admin-app.js"></script>
+</main>
+</body>
+</html>
