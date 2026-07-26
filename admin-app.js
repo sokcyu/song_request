@@ -19,6 +19,8 @@ const STATUS_LABELS = {
   production_cancelled: "제작 취소"
 };
 
+const requestCache = new Map();
+
 const NOTICE_TEXT = {
   approved: "신청곡이 승인되었습니다.",
   rejected: "신청곡이 거절되었습니다.",
@@ -74,9 +76,11 @@ function listen() {
 
   onSnapshot(collection(db, "requests"), (snapshot) => {
     const filter = $("#requestFilter").value;
-    const requests = snapshot.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .filter((x) => filter === "all" || x.status === filter);
+    const allRequests = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    requestCache.clear();
+    allRequests.forEach((request) => requestCache.set(request.id, request));
+
+    const requests = allRequests.filter((x) => filter === "all" || x.status === filter);
 
     $("#requests").innerHTML = requests.length ? requests.map((x) => `
       <div class="item">
@@ -86,6 +90,7 @@ function listen() {
         <span class="badge status-${x.status || "pending"}">${STATUS_LABELS[x.status] || x.status || "승인 대기"}</span>
         <div class="actions request-actions">
           <button class="ok" onclick="rs('${x.id}','approved')">승인</button>
+          ${x.requestMode === "lyrics" ? "" : `<button class="youtube" onclick="openYouTube('${x.id}')">▶ 유튜브 음원 확인</button>`}
           <button class="no" onclick="rs('${x.id}','rejected')">거절</button>
           <button class="waiting" onclick="rs('${x.id}','production_pending')">제작 대기</button>
           <button class="complete" onclick="rs('${x.id}','production_completed')">제작 완료</button>
@@ -113,6 +118,27 @@ window.md = async (id) => {
   await deleteDoc(doc(db, "members", id));
 };
 
+function getYouTubeUrl(request) {
+  const savedUrl = request?.youtubeUrl || request?.youtubeLink || request?.url || "";
+  if (/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(savedUrl)) {
+    return savedUrl;
+  }
+
+  const song = String(request?.song || "").trim();
+  const artist = String(request?.artist || "").trim();
+  const query = [song, artist].filter(Boolean).join(" ");
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(query || "음원")}`;
+}
+
+window.openYouTube = (id) => {
+  const request = requestCache.get(id);
+  if (!request) {
+    alert("신청곡 정보를 불러오지 못했습니다.");
+    return;
+  }
+  window.open(getYouTubeUrl(request), "_blank", "noopener,noreferrer");
+};
+
 window.rs = async (id, status) => {
   const label = STATUS_LABELS[status] || status;
   if (!confirm(`상태를 '${label}'(으)로 변경하시겠습니까?`)) return;
@@ -124,6 +150,13 @@ window.rs = async (id, status) => {
       updatedAt: serverTimestamp(),
       productionUpdatedAt: status.startsWith("production_") ? serverTimestamp() : null
     });
+
+    if (status === "approved") {
+      const request = requestCache.get(id);
+      if (request?.requestMode !== "lyrics" && confirm("신청곡이 승인되었습니다.\n유튜브에서 음원을 확인하시겠습니까?")) {
+        window.open(getYouTubeUrl(request), "_blank", "noopener,noreferrer");
+      }
+    }
   } catch (error) {
     console.error(error);
     alert("상태를 변경하지 못했습니다.");
